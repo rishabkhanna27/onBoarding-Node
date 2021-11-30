@@ -1,14 +1,15 @@
 const jwt = require("jsonwebtoken");
 const Model = require("../models");
 const Handlebars = require("handlebars");
+var config = require('../config/config')
 
 module.exports.getToken = (data) =>
-  jwt.sign(data, config.get('JWT_SERVICE.SECRET_KEY'), {
+  jwt.sign(data, config.JWT_SERVICE.SECRET_KEY, {
     expiresIn: "30 days"
   });
 
 module.exports.verifyToken = (token) =>
-  jwt.verify(token, config.get('JWT_SERVICE.SECRET_KEY'));
+  jwt.verify(token, config.JWT_SERVICE.SECRET_KEY);
 
 module.exports.verify = (...args) => async (req, res, next) => {
   try {

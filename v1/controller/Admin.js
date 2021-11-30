@@ -357,7 +357,7 @@ module.exports.getUerCsv = async (req, res, next) => {
         console.log("url", fileUrl);
     });
     let fileNameSend = {
-        redirection: config.get('exportUrl') + fileName,
+        redirection: config.exportUrl + fileName,
     };
     return res.success(constants.MESSAGES.SUCCESS, fileNameSend);
   } catch (error) {

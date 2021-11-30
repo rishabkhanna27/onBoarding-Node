@@ -1,9 +1,8 @@
-const client = require('twilio')('AC4a1cf771a1673df8833830d5b8d0ec16', '0d0060c2ad840073486cc20327b5d8eb', {
-    lazyLoading: true
-});
-const fromNumber = '+14432513540';
-
-
+const config = require('../config/config')
+// const client = require('twilio')(config.twillioCredentials.accountSid, config.twillioCredentials.authToken, {
+//     lazyLoading: true
+// });
+const fromNumber = config.twillioCredentials.fromNumber;
 const constants = require('../common/constants')
 const functions = require('../common/functions')
 const Model = require('../models/index')

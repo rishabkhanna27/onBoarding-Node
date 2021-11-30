@@ -4,14 +4,16 @@ const FCM = require('fcm-node');
 const Model = require('../models/index');
 const constant = require("../common/constants");
 const apn = require("apn");
-const apnProvider = new apn.Provider({
-  token: {
-    key: path.join(__dirname, '../common/AuthKey_GP4V5R97KN.p8'),
-    keyId: config.get('apnKey.keyId'),
-    teamId: config.get('apnKey.teamId')
-  },
-  production: false,
-});
+
+var config = require('../config/config')
+// const apnProvider = new apn.Provider({
+//   token: {
+//     key: path.join(__dirname, ''),
+//     keyId: config.apnKey.keyId,
+//     teamId: config.apnKey.teamId
+//   },
+//   production: false,
+// });
 exports.sendAndroidPushNotifiction = sendAndroidPushNotifiction;
 exports.sendIosPushNotification = sendIosPushNotification;
 exports.preparePushNotifiction = preparePushNotifiction;
@@ -19,10 +21,10 @@ exports.sendWebPushNotifiction = sendWebPushNotifiction;
 exports.sendPushNotifictionAccordingToDevice = sendPushNotifictionAccordingToDevice;
 
 async function sendAndroidPushNotifiction(payload) {
-  let fcm = new FCM(config.get('fcmKey.android'));
+  let fcm = new FCM(config.fcmKey.android);
   var message = {
     to: payload.deviceToken || '',
-    collapse_key: 'LASSO',
+    collapse_key: '',
     data: payload
   };
   if (payload.isAdminNotification && payload.isNotificationSave) {
@@ -49,7 +51,7 @@ async function sendIosPushNotification(payload) {
       title: payload.title,
       body: payload.message
     };
-    note.topic = config.get('apnKey.bundleId') ////////////////////////////////
+    note.topic = config.apnKey.bundleId 
     note.payload = payload;
     const result = await apnProvider.send(note, payload.deviceToken)
     console.log(result, "result");
@@ -136,14 +138,6 @@ async function preparePushNotifiction(payloadData, userType) {
       _id: payload.userId
     })
     if (deviceData) {
-      // let messagepending = await Model.UserNotification.countDocuments({
-      //   userId: payload.userId._id,
-      //   isRead: false
-      // })
-      // payload.pendingmsg = 1;
-      // if (messagepending != 0) {
-      //   payload.pendingmsg = messagepending + 1;
-      // }
       sendPushNotifictionAccordingToDevice(deviceData, payload);
     } else {
       console.log('No user device data found.')

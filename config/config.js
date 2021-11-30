@@ -1,8 +1,8 @@
-{
+module.exports = {
     "heartbeat": true,
     "PORT": 9041,
     "databaseSettings": {
-        "MONGODB_URL" :"mongodb://localhost:27017/test"
+        "MONGODB_URL" :"mongodb://localhost:27017/onboarding_node"
     },
     "twillioCredentials": {
         "accountSid": "",

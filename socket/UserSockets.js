@@ -51,10 +51,6 @@ module.exports = (io, socket) => {
           count = Number(teamId) + Number(eventId) + Number(groupId) + Number(receiverId)
         }
         socket.join(data.userId);
-        let payload = {
-          userId: data.userId
-        }
-        process.emit("pending_count", payload);
         io.to(socket.id).emit("onlineUserOk", {
           status: 200,
           data: {
@@ -63,7 +59,13 @@ module.exports = (io, socket) => {
           }
         });
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error(error || error.message)
+      io.to(data.userId).emit('falseListner', {
+        sucess: 400,
+        error: error.message
+      });
+    }
   });
   socket.on("userList", async function (data) {
     try {
@@ -632,15 +634,15 @@ module.exports = (io, socket) => {
       dataToSend.sort((a, b) => {
         return new Date(b.lastMessageTime) - new Date(a.lastMessageTime);
       });
-      let payload = {
-        userId: data.userId
-      }
-      process.emit("pending_count", payload);
       io.to(data.userId).emit("USER_LIST_DATA", {
         dataToSend
       });
     } catch (error) {
-      console.log(error)
+      console.error(error || error.message)
+      io.to(data.userId).emit('falseListner', {
+        sucess: 400,
+        error: error.message
+      });
     }
   });
   socket.on("joinRoom", async function (data) {
@@ -698,7 +700,11 @@ module.exports = (io, socket) => {
         });
       }
     } catch (error) {
-      console.log(error)
+      console.error(error || error.message)
+      io.to(data.userId).emit('falseListner', {
+        sucess: 400,
+        error: error.message
+      });
     }
   });
   socket.on("leaveRoom", async function (data) {
@@ -734,33 +740,55 @@ module.exports = (io, socket) => {
           isOnline: false
         });
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error(error || error.message)
+      io.to(data.userId).emit('falseListner', {
+        sucess: 400,
+        error: error.message
+      });
+    }
   });
   socket.on('typing_user', async (data) => {
-    let isTyping = true;
-    io.to(data.receiverId).emit("isTyping", {
+    try{
+      let isTyping = true;
+      io.to(data.receiverId).emit("isTyping", {
       isTyping
-    });
-    if (data.roomId) {
+      });
+      if (data.roomId) {
       io.to(data.roomId).emit("isTyping", {
         isTyping
+      });
+      }
+    } catch (error) {
+      console.error(error || error.message)
+      io.to(data.userId).emit('falseListner', {
+        sucess: 400,
+        error: error.message
       });
     }
   });
   socket.on('onlineCheck', async (data) => {
-    console.log("onlineCheck")
-    let isOnline = false;
-    if (isValidObjectId(data.receiverId)) {
+    try{
+      console.log("onlineCheck")
+      let isOnline = false;
+      if (isValidObjectId(data.receiverId)) {
       let result = await Model.User.findOne({
         _id: data.receiverId
       })
       if (result.isActive) {
         isOnline = true;
       }
-    }
-    io.to(data.userId).emit("isOnlineCheck", {
+      }
+      io.to(data.userId).emit("isOnlineCheck", {
       isOnline
-    });
+      });
+    } catch (error) {
+      console.error(error || error.message)
+      io.to(data.userId).emit('falseListner', {
+        sucess: 400,
+        error: error.message
+      });
+    }
 
   });
   socket.on('send_message_user', async (data) => {
@@ -893,10 +921,6 @@ module.exports = (io, socket) => {
                   }).save()
                 }
               }
-              let payload = {
-                userId: teamData.teamMembers[i]._id
-              }
-              process.emit("pending_count", payload);
               if (teamData.teamMembers[i].joinedRoom != data.roomId && teamData.teamMembers[i].isChatNotification == true && JSON.stringify(teamData.teamMembers[i]._id) != JSON.stringify(data.senderId)) {
                 const checkMute = await Model.AddMute.findOne({
                   userId : teamData.teamMembers[i]._id,
@@ -925,17 +949,10 @@ module.exports = (io, socket) => {
           let userData = await Model.User.findOne({
             _id: ObjectId(data.receiverId)
           })
-          // let senderInfo = await Model.User.findOne({
-          //   _id:ObjectId(data.senderId)
-          // })
           let checkUserOnline = await Model.User.findOne({
             _id: ObjectId(data.receiverId),
             joinedUser: ObjectId(data.senderId)
           })
-          let payload = {
-            userId: userData._id
-          }
-          process.emit("pending_count", payload);
           if (checkUserOnline == null) {
             let check = await Model.CountMessage.findOne({
               receiverId: ObjectId(data.senderId),
@@ -1012,10 +1029,6 @@ module.exports = (io, socket) => {
                   }).save()
                 }
               }
-              let payload = {
-                userId: groupData.join[i]._id
-              }
-              process.emit("pending_count", payload);
               if (groupData.join[i].joinedRoom != data.roomId && groupData.join[i].isChatNotification == true && JSON.stringify(groupData.join[i]._id) != JSON.stringify(data.senderId)) {
                 const checkMute = await Model.AddMute.findOne({
                   userId : groupData.join[i]._id,
@@ -1070,10 +1083,6 @@ module.exports = (io, socket) => {
                   }).save()
                 }
               }
-              let payload = {
-                userId: eventData.acceptedList[i]._id
-              }
-              process.emit("pending_count", payload);
               if (eventData.acceptedList[i].joinedRoom != data.roomId && eventData.acceptedList[i].isChatNotification == true && JSON.stringify(eventData.acceptedList[i]._id) != JSON.stringify(data.senderId)) {
                 const checkMute = await Model.AddMute.findOne({
                   userId : eventData.acceptedList[i]._id,
@@ -1102,57 +1111,11 @@ module.exports = (io, socket) => {
 
       }
     } catch (error) {
-      console.log(error)
-    }
-  });
-  socket.on('pending_count', async (data) => {
-    try {
-      console.log("pending_count");
-      if (data != null && data.userId) {
-        let dataToSend = {}
-        let check = await Model.CountMessage.find({
-          userId: ObjectId(data.userId),
-          count: {
-            $ne: 0
-          }
-        });
-        if (check.length > 0) {
-          let teamId = 0,
-            eventId = 0,
-            groupId = 0,
-            receiverId = 0;
-          let teamData = [],
-            eventData = [],
-            groupData = [],
-            userData = [];
-          for (let i = 0; i < check.length; i++) {
-            if (check[i].teamId) {
-              teamData.push(check[i].teamId)
-              teamId++
-            } else if (check[i].eventId) {
-              eventData.push(check[i].eventId)
-              eventId++
-            } else if (check[i].groupId) {
-              groupData.push(check[i].groupId)
-              groupId++
-            } else if (check[i].receiverId) {
-              userData.push(check[i].receiverId)
-              receiverId++
-            }
-          }
-          dataToSend.teamData = teamData
-          dataToSend.eventData = eventData
-          dataToSend.groupData = groupData
-          dataToSend.userData = userData
-          count = Number(teamId) + Number(eventId) + Number(groupId) + Number(receiverId)
-          dataToSend.count = count
-        }
-        io.to(data.userId).emit("pending", {
-          dataToSend
-        });
-      }
-    } catch (error) {
-      console.log(error)
+      console.error(error || error.message)
+      io.to(data.userId).emit('falseListner', {
+        sucess: 400,
+        error: error.message
+      });
     }
   });
 }

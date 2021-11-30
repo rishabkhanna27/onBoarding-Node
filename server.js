@@ -1,8 +1,5 @@
   "use strict";
-  // require("dotenv").config();
   const express = require("express");
-  const got = require('got');
-  const fs = require('fs');
   process.env.NODE_CONFIG_DIR = 'config/';
   const app = express();
   const server = require("http").createServer(app);
@@ -10,26 +7,12 @@
   const logger = require("morgan");
   const bodyParser = require("body-parser");
   const connection = require("./common/connection");
-  const model = require('./models/index')
   const processes = require("./common/processes");
-  global.config = require('config');
-  const comm = require("./common/functions");
-  const app_instance = process.argv.NODE_APP_INSTANCE;
+  var config = require( './config/config' );
   process.argv.NODE_APP_INSTANCE = "";
   const responses = require("./common/responses");
-  const Auth = require("./common/authenticate");
-  
   const v1Routes = require("./v1/routes/index");
   const socket = require('./socket/index')
-  const cronJob=require('./cron/cronjobs');
-  // const cronJob = require('./cron/cronjobs')
-
-  // const aws = require("aws-sdk")
-  // aws.config.update({
-  //   secretAccessKey: 'r2rxKNzUNBzn9KH9XoHtEDcEVAFH13moV+3LjpjX',
-  //   accessKeyId: 'AKIAWBU5UEEJ45RYT3MQ'
-  // });
-
 
   app.use("/", express.static(__dirname + "/public"));
   app.use(cors());
@@ -67,16 +50,12 @@
   });
 
   // Listening & Initializing
-  server.listen(config.get('PORT'), async () => {
+  server.listen(config.PORT, async () => {
     console.log(`Environment:`, process.env.NODE_ENV);
-    console.log(`Running on:`, config.get('PORT'));
+    console.log(`Running on:`, config.PORT);
     console.log('start socketInitialize');
     let io = require('socket.io')(server);
     socket(io)
-    cronJob.startCronJobs().then(console.log("cronJob.startCronJobs();"));
-    cronJob.statusUpdatePicked.start()
-    cronJob.tokenExpire.start()
-    // cronJob.startCronJobs().then(console.log("cronJob.startCronJobs();"));
     connection.mongodb();
     processes.init();
   });

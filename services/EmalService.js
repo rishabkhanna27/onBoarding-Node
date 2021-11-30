@@ -1,6 +1,7 @@
+const config = require('../config/config')
 const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey('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');
-const fromMail = "aaron@thelassoapp.com"
+sgMail.setApiKey(config.sendGrid.sendgrid_api_key);
+const fromMail = config.sendGrid.fromEmail
 
 const constants = require('../common/constants')
 const Model = require('../models/index')

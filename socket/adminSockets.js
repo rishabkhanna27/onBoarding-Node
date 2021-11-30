@@ -8,6 +8,12 @@ module.exports = (io, socket) => {
         });
         socket.join(data.adminId);
       }
-    } catch (error) {}
+    } catch (error) {
+      console.error(error || error.message)
+      io.to(data.adminId).emit('falseListner', {
+        sucess: 400,
+        error: error.message
+      });
+    }
   });
 }

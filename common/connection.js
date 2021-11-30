@@ -1,9 +1,10 @@
 const mongoose = require("mongoose");
 global.ObjectId = mongoose.Types.ObjectId;
+var config = require('../config/config')
 
 module.exports.mongodb = async () => {
     await mongoose.connect(
-        config.get('databaseSettings.MONGODB_URL'),
+        config.databaseSettings.MONGODB_URL,
         {
             useUnifiedTopology: true,
             useFindAndModify: false,

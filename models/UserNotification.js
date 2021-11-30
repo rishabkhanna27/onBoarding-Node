@@ -26,11 +26,6 @@ const UserNotificationModel = new Schema({
         type: ObjectId,
         ref: 'user'
     },
-    notificationType: {
-        type: Number,
-        enum: [constant.NOTIFICATION_TYPE.Invitation, constant.NOTIFICATION_TYPE.Activity],
-        default: constant.NOTIFICATION_TYPE.Activity
-    },
     isNotificationSave: {
         type: Boolean,
         default: false

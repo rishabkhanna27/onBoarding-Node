@@ -1,8 +1,9 @@
 {
-  "name": "onBoard",
+  "name": "onboard",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start": "nodemon server.js",
     "dev": "export NODE_ENV=dev && pm2 start server.js --name onBoard"
   },
   "author": "Rishab Khanna",
@@ -41,11 +42,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://gitlab.com/lasso-social-app-aron/lasso-_node_backend.git"
+    "url": ""
   },
-  "bugs": {
-    "url": "https://gitlab.com/lasso-social-app-aron/lasso-_node_backend/issues"
-  },
-  "homepage": "https://gitlab.com/lasso-social-app-aron/lasso-_node_backend#README",
+  "homepage": "",
   "description": ""
 }
